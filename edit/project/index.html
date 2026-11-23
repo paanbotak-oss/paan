@@ -239,7 +239,7 @@
       });
 
       // ---- checklist: items flip in like 3D cards
-      (() => {
+      if (D.checklist) (() => {
         const [id, s, e, ats] = D.checklist;
         const items = qa(".ck-item", q("#" + id)), box = qa(".ck-3d", q("#" + id))[0];
         tl.set(box, { rotationY: -18, rotationX: 8 }, s);

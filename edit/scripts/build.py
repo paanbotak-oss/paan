@@ -1,90 +1,22 @@
-"""Builds project/index.html: the HyperFrames composition for the knee video.
+"""Builds PROJECT/index.html (HyperFrames composition) from a video plan.
 
-Every timed element is written out statically (no runtime DOM generation) so the
-HyperFrames renderer can see all clips and audio. Times are in OUTPUT seconds
-(after the cuts in cut.py). Usage: python3 build.py PROJECT_DIR
+Usage: python3 build.py PLAN.json PROJECT_DIR
+All times in the plan are OUTPUT seconds (after the cuts made by cut.py).
+See .claude/skills/edit-video-perbualan/SKILL.md for the plan format.
 """
 import html, json, sys
 
-PROJECT = sys.argv[1] if len(sys.argv) > 1 else "project"
-EDL = json.load(open(f"{PROJECT}/assets/edl.json"))
-DUR = EDL["duration"]
-
-# ---------------------------------------------------------------- chapters
-# 3D flip sign under the logo; each chapter flips in, flips out.
-CHAPTERS = [
-    (0.35, 12.95, "SOAL JAWAB", "LUTUT BENGKAK"),
-    (12.99, 16.55, "PUNCA #1", "GOUT"),
-    (17.40, 33.05, "PUNCA #2", "OSTEOARTHRITIS"),
-    (36.25, 63.35, "CARA PERIKSA", "PEMERIKSAAN FIZIKAL"),
-    (65.45, 83.85, "PESAKIT MUDA", "LIGAMEN & TENDON"),
-    (84.80, 96.00, "LANGKAH 2", "SCAN ULTRASOUND"),
-]
-
-# ---------------------------------------------------------------- 3D keywords
-# (start, end, lines, style, size)  style: pop | impact | crunch
-KEYWORDS = [
-    (0.20, 2.85, ["LUTUT", "BENGKAK?"], "impact", 170),
-    (4.65, 6.45, ["BEBERAPA", "SEBAB"], "pop", 120),
-    (14.60, 16.45, ["GOUT"], "impact", 180),
-    (28.45, 30.90, ["OSTEO-", "ARTHRITIS"], "impact", 130),
-    (54.10, 55.90, ["CHECK", "PERGERAKAN"], "pop", 115),
-    (56.45, 58.30, ["KRUK-KRAK!"], "crunch", 130),
-    (69.55, 71.70, ["LIGAMEN", "& TENDON"], "pop", 120),
-    (75.90, 77.40, ["INJURI"], "impact", 170),
-    (87.15, 89.00, ["MENISCUS"], "pop", 140),
-    (93.45, 95.20, ["KOYAK!"], "impact", 170),
-]
-
-# Two-step checklist (physical exam -> ultrasound), flips in item by item.
-CHECKLIST = (41.35, 44.40, [(41.35, "1", "FIZIKAL"), (42.40, "2", "ULTRASOUND")])
-
-# ---------------------------------------------------------------- full cards
-# Cover the old broken TikTok transitions while the voice carries on.
-# (start, end, kicker, title_lines, sub, kind)
-CARDS = [
-    (16.55, 17.55, "", [], "", "cube"),  # PUNCA #1 -> #2 rotating cube
-    (33.05, 36.30, "SOALAN", ["MACAM MANA", "NAK PERIKSA?"], "Gout atau Osteoarthritis?", "title"),
-    (63.35, 65.60, "SIAPA LAGI?", ["PESAKIT", "MUDA"], "Aktif bersukan & bersenam", "title"),
-    (83.85, 84.85, "LANGKAH 2", ["SCAN", "ULTRASOUND"], "", "title"),
-    (85.65, 86.85, "", ["HASIL", "SCAN"], "", "title"),
-]
-
-# White flash stingers over short broken bits.
-FLASHES = [(2.90, 3.36), (39.56, 39.74), (96.02, 96.42)]
-
-# ---------------------------------------------------------------- camera
-# (time, scale, mode) mode: set = hard cut zoom, ease = 0.3s smooth punch
-CAM = [
-    (0.00, 1.22, "set"), (0.05, 1.04, "intro"),
-    (3.22, 1.00, "set"), (8.65, 1.10, "set"), (12.99, 1.14, "set"), (14.60, 1.22, "punch"),
-    (15.90, 1.10, "ease"),
-    (17.30, 1.00, "set"), (22.32, 1.12, "set"), (25.34, 1.02, "set"), (28.45, 1.20, "punch"),
-    (31.00, 1.06, "ease"),
-    (36.02, 1.10, "set"), (37.73, 1.00, "set"),
-    (39.63, 1.00, "set"), (41.35, 1.10, "set"), (44.95, 1.00, "set"), (47.97, 1.12, "set"),
-    (50.97, 1.00, "set"), (56.45, 1.08, "punch"), (58.51, 1.00, "set"), (60.05, 1.12, "set"),
-    (62.35, 1.02, "set"),
-    (65.33, 1.06, "set"), (68.15, 1.14, "set"), (70.91, 1.02, "set"), (73.05, 1.12, "set"),
-    (75.90, 1.22, "punch"), (77.47, 1.00, "set"),
-    (82.84, 1.08, "set"), (84.29, 1.00, "set"),
-    (86.41, 1.00, "set"), (92.16, 1.15, "set"), (93.44, 1.00, "set"), (94.98, 1.12, "set"),
-    (95.30, 1.20, "set"), (96.34, 1.00, "set"),
-]
-SHAKES = [0.22, 14.60, 28.45, 56.45, 56.65, 75.90, 93.45]
-
-# ---------------------------------------------------------------- sound
-SFX = [
-    (0.02, "whoosh", 0.45), (0.22, "impact", 0.55), (2.90, "stinger", 0.45),
-    (4.65, "pop", 0.40), (12.99, "tick", 0.35), (14.58, "impact", 0.50),
-    (16.50, "whoosh_long", 0.45), (16.95, "tick", 0.40), (17.30, "whoosh", 0.40), (17.42, "tick", 0.30),
-    (28.43, "impact", 0.50), (32.05, "riser", 0.30), (33.05, "impact", 0.50), (36.02, "whoosh", 0.45),
-    (36.27, "tick", 0.30), (39.52, "whoosh", 0.45), (41.35, "pop", 0.40), (42.40, "pop", 0.40),
-    (54.10, "pop", 0.40), (56.45, "crunch", 0.55), (63.30, "whoosh_long", 0.45), (65.33, "whoosh", 0.40),
-    (65.47, "tick", 0.30), (69.55, "pop", 0.40), (75.88, "impact", 0.50), (83.80, "whoosh_long", 0.45),
-    (84.60, "whoosh", 0.40), (85.62, "stinger", 0.40), (86.62, "whoosh", 0.40), (87.15, "pop", 0.40),
-    (93.43, "impact", 0.50), (96.00, "stinger", 0.45), (96.45, "ding", 0.35),
-]
+PLAN = json.load(open(sys.argv[1]))
+PROJECT = sys.argv[2] if len(sys.argv) > 2 else "project"
+DUR = json.load(open(f"{PROJECT}/assets/edl.json"))["duration"]
+CHAPTERS = PLAN.get("chapters", [])
+KEYWORDS = PLAN.get("keywords", [])
+CHECKLIST = PLAN.get("checklist")
+CARDS = PLAN.get("cards", [])
+FLASHES = PLAN.get("flashes", [])
+CAM = PLAN.get("cam", [])
+SHAKES = PLAN.get("shakes", [])
+SFX = PLAN.get("sfx", [])
 SFX_LEN = {"whoosh": 0.6, "whoosh_long": 1.0, "pop": 0.2, "impact": 1.25, "riser": 1.05,
            "tick": 0.1, "ding": 1.45, "crunch": 0.5, "stinger": 0.45}
 
@@ -127,10 +59,12 @@ def build():
         kw_ids.append((clip(s, e, inner, f"kw kw-{style}", z=30), s, e, style))
 
     # checklist
-    s, e, items = CHECKLIST
-    rows = "".join(f'<div class="ck-item" data-at="{t}"><span class="ck-num">{esc(num)}</span>'
+    ck_id = None
+    if CHECKLIST:
+      s, e, items = CHECKLIST
+      rows = "".join(f'<div class="ck-item" data-at="{t}"><span class="ck-num">{esc(num)}</span>'
                    f'<span class="ck-txt">{esc(txt)}</span></div>' for t, num, txt in items)
-    ck_id = clip(s, e, f'<div class="ck-stage"><div class="ck-3d">{rows}</div></div>', "checklist", z=30)
+      ck_id = clip(s, e, f'<div class="ck-stage"><div class="ck-3d">{rows}</div></div>', "checklist", z=30)
 
     # cards
     card_ids = []
@@ -138,11 +72,12 @@ def build():
         dots = "".join(f'<i style="left:{(i * 397) % 1000 / 10:.1f}%;top:{(i * 613) % 1000 / 10:.1f}%;'
                        f'animation-delay:0s;--d:{(i * 7) % 5 + 2}"></i>' for i in range(28))
         if kind == "cube":
+            # cube: kicker "FRONT KICKER|BACK KICKER", lines[0] = front word, lines[1:] = back lines
+            k1, k2 = (kicker.split("|") + [""])[:2]
+            back = "".join(f'<div class="cf-small">{layers3d(l, 10, "c3d")}</div>' for l in lines[1:])
             body = ('<div class="cube-stage"><div class="cube">'
-                    f'<div class="cube-face f-front" data-layout-ignore><span class="cf-k">PUNCA #1</span>{layers3d("GOUT", 10, "c3d")}</div>'
-                    f'<div class="cube-face f-bottom" data-layout-ignore><span class="cf-k">PUNCA #2</span>'
-                    f'<div class="cf-small">{layers3d("OSTEO-", 10, "c3d")}</div>'
-                    f'<div class="cf-small">{layers3d("ARTHRITIS", 10, "c3d")}</div></div>'
+                    f'<div class="cube-face f-front" data-layout-ignore><span class="cf-k">{esc(k1)}</span>{layers3d(lines[0], 10, "c3d")}</div>'
+                    f'<div class="cube-face f-bottom" data-layout-ignore><span class="cf-k">{esc(k2)}</span>{back}</div>'
                     '</div></div>')
         else:
             fit = min(150, int(740 / (0.68 * max(len(l) for l in lines))))
@@ -170,11 +105,12 @@ def build():
         "dur": DUR, "cam": CAM, "shakes": SHAKES,
         "chapters": [[i, s, e] for i, s, e in chap_ids],
         "keywords": [[i, s, e, st] for i, s, e, st in kw_ids],
-        "checklist": [ck_id, s_ck := CHECKLIST[0], CHECKLIST[1], [t for t, _, _ in CHECKLIST[2]]],
+        "checklist": [ck_id, CHECKLIST[0], CHECKLIST[1], [t for t, _, _ in CHECKLIST[2]]] if CHECKLIST else None,
         "cards": [[i, s, e, k] for i, s, e, k in card_ids],
         "flashes": [[i, s, e] for i, s, e in flash_ids],
     }
     page = TEMPLATE.replace("{{DUR}}", f"{DUR:.2f}") \
+        .replace("{{TOPFADE}}", f"{PLAN.get('outro_start', DUR):.2f}") \
         .replace("{{ELEMENTS}}", "\n      ".join(els)) \
         .replace("{{AUDIO}}", "\n      ".join(audio)) \
         .replace("{{DATA}}", json.dumps(timeline))
@@ -302,7 +238,7 @@ TEMPLATE = r"""<!doctype html>
         <video id="base" src="assets/base.mp4" muted playsinline data-start="0" data-duration="{{DUR}}" data-track-index="0"></video>
       </div>
       <div id="vignette" class="clip" data-start="0" data-duration="{{DUR}}" data-track-index="4"></div>
-      <div id="topfade" class="clip" data-start="0" data-duration="96.30" data-track-index="5"></div>
+      <div id="topfade" class="clip" data-start="0" data-duration="{{TOPFADE}}" data-track-index="5"></div>
       <div id="progress-track" class="clip" data-start="0" data-duration="{{DUR}}" data-track-index="70"></div>
       <div id="progress" class="clip" data-start="0" data-duration="{{DUR}}" data-track-index="71"></div>
       {{ELEMENTS}}
@@ -365,7 +301,7 @@ TEMPLATE = r"""<!doctype html>
       });
 
       // ---- checklist: items flip in like 3D cards
-      (() => {
+      if (D.checklist) (() => {
         const [id, s, e, ats] = D.checklist;
         const items = qa(".ck-item", q("#" + id)), box = qa(".ck-3d", q("#" + id))[0];
         tl.set(box, { rotationY: -18, rotationX: 8 }, s);

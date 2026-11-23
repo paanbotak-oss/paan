@@ -16,7 +16,7 @@ Output: `output/lutut-bengkak-final.mp4` (1080x1920, ~1:41, asal 1:55).
 ## Ubah & render semula
 Masa semua grafik/SFX ada dalam `scripts/build.py` (saat output).
 ```bash
-python3 scripts/build.py project          # jana project/index.html
+python3 scripts/build.py videos/lutut-bengkak/plan.json project
 cd project && npx hyperframes check
 npx hyperframes render -o ../output/lutut-bengkak-edit.mp4 -q delivery
 ```
