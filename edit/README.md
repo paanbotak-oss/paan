@@ -1,6 +1,6 @@
 # Edit video: Lutut Bengkak (HyperFrames)
 
-Output: `output/lutut-bengkak-edit.mp4` (1080x1920, ~1:41, asal 1:55).
+Output: `output/lutut-bengkak-final.mp4` (1080x1920, ~1:41, asal 1:55).
 
 ## Apa yang dibuat
 - **Buang jeda & bahagian tak perlu** (`scripts/cut.py`): frame kabur/flash, frame hitam,
