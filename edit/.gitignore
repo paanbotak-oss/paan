@@ -5,3 +5,5 @@ project/assets/base.mp4
 project/assets/voice.wav
 project/assets/music_bed.wav
 output/*.partial*
+output/work-*/
+output/.*
