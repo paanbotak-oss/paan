@@ -1,0 +1,7 @@
+node_modules/
+project/.hyperframes/
+project/assets/music_bed.wav.loop.wav
+project/assets/base.mp4
+project/assets/voice.wav
+project/assets/music_bed.wav
+output/*.partial*
